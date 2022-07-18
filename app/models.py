@@ -1,0 +1,62 @@
+from typing import List, Optional
+from unicodedata import category
+from sqlalchemy import Column, String
+from datetime import date, datetime
+from sqlmodel import Field, Relationship, SQLModel
+    
+class User(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
+    email: str = Field(sa_column=Column("email", String, unique=True, nullable=False))
+    password: str = Field(nullable=False)
+    first_name: str = Field(default="", max_length=50, nullable=True)
+    last_name: str = Field(default="", max_length=50, nullable=True)
+    preferred_name: str = Field(default="", max_length=50, nullable=True)
+    bio: str = Field(default="", max_length=1000, nullable=True)
+    gender: str = Field(default="", max_length=50, nullable=True)
+    contact_number: str = Field(default="", max_length=50, nullable=True)
+    current_address:str = Field(default="", max_length=300, nullable=True)
+    permanent_address:str = Field(default="", max_length=300, nullable=True)
+    birthday: date = Field(nullable=True)
+    created_at: datetime = Field(default=datetime.utcnow(), nullable=False)
+    experiences: Optional[List["Experience"]] = Relationship(back_populates="owner")
+    educations: Optional[List["Education"]] = Relationship(back_populates="owner")
+    profile_photo: Optional["ProfilePhoto"] = Relationship(back_populates="owner")
+
+class Experience(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
+    description: str = Field(nullable=False, max_length=100)
+    owner_id: Optional[int] = Field(nullable=False,  foreign_key="user.id")
+    created_at: datetime = Field(default=datetime.utcnow(), nullable=False)
+    active: bool = Field(default=False, nullable=True)
+    start_date: date = Field(nullable=False)
+    end_date: date = Field(nullable=True)
+    owner: User = Relationship(back_populates="experiences")
+    
+class Education(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
+    description: str = Field(nullable=False, max_length=100)
+    owner_id: Optional[int] = Field(nullable=False,  foreign_key="user.id")
+    created_at: datetime = Field(default=datetime.utcnow(), nullable=False)
+    active: bool = Field(default=False, nullable=True)
+    start_date: date = Field(nullable=False)
+    end_date: date = Field(nullable=True)
+    owner: User = Relationship(back_populates="educations")
+
+class University(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
+    name: str = Field(nullable=False, max_length=100)
+    city: str = Field(nullable=False, max_length=100)
+    state: str = Field(nullable=False, max_length=100)
+    conference: str = Field(nullable=False, max_length=100)
+    division: str = Field(nullable=False, max_length=100)
+    category: str = Field(nullable=False, max_length=100)
+    region: str = Field(nullable=False, max_length=100)
+    created_at: datetime = Field(default=datetime.utcnow(), nullable=False)
+
+class ProfilePhoto(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
+    photo_name: str = Field(nullable=False)
+    photo_url: str = Field(nullable=False)
+    is_deleted: bool = Field(default=False, nullable=True)
+    owner_id: int = Field(nullable=False,  foreign_key="user.id")
+    owner: User = Relationship(back_populates="profile_photo")
