@@ -1,9 +1,14 @@
 from unicodedata import category
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from typing import List, Optional
 from .. import models, schemas
 from ..database import get_db
 from sqlmodel import Session, or_, select
+from fastapi_csrf_protect import CsrfProtect
+
+@CsrfProtect.load_config
+def get_csrf_config():
+  return schemas.CsrfSettings()
 
 router = APIRouter(
     prefix="/universities",
@@ -11,7 +16,9 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=List[schemas.UniversityRes])
-def get_universities(db: Session = Depends(get_db), limit: int = 10, skip: int = 0, search: Optional[str] = ""):
+def get_universities(request: Request, db: Session = Depends(get_db), limit: int = 10, skip: int = 0, search: Optional[str] = "", csrf_protect: CsrfProtect = Depends()):
+    csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
+    csrf_protect.validate_csrf(csrf_token)
     statement = select(models.University)
     if search != "":
         statement = statement.where(or_(models.University.name.contains(search), 

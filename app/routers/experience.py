@@ -1,17 +1,25 @@
-from fastapi import Response, status, HTTPException, Depends, APIRouter
+from fastapi import Request, Response, status, HTTPException, Depends, APIRouter
 from typing import List, Optional
 from fastapi_jwt_auth import AuthJWT
 from .. import models, schemas
 from ..database import get_db
 from sqlmodel import Session, select
+from fastapi_csrf_protect import CsrfProtect
+
+@CsrfProtect.load_config
+def get_csrf_config():
+  return schemas.CsrfSettings()
 
 router = APIRouter(
     prefix="/experiences",
     tags=['Experience']
 )
 
+
 @router.get("/", response_model=List[schemas.ExperienceRes])
-def get_experiences(db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
+def get_experiences(request: Request, db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect:CsrfProtect = Depends()):
+    csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
+    csrf_protect.validate_csrf(csrf_token)
     Authorize.jwt_required()
     statement = select(models.Experience).where(models.Experience.owner_id==Authorize.get_jwt_subject())
     results = db.exec(statement)
@@ -19,7 +27,9 @@ def get_experiences(db: Session = Depends(get_db), Authorize: AuthJWT = Depends(
     return experiences
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-def create_experience(experience: schemas.ExperienceReq, Authorize: AuthJWT = Depends(), db: Session = Depends(get_db)):
+def create_experience(request: Request, experience: schemas.ExperienceReq, Authorize: AuthJWT = Depends(), db: Session = Depends(get_db), csrf_protect:CsrfProtect = Depends()):
+    csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
+    csrf_protect.validate_csrf(csrf_token)
     Authorize.jwt_required()
     statement = select(models.Experience).where(models.Experience.owner_id==Authorize.get_jwt_subject())
     results = db.exec(statement)
@@ -35,7 +45,9 @@ def create_experience(experience: schemas.ExperienceReq, Authorize: AuthJWT = De
     return new_experience
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_experience(id: int, db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
+def delete_experience(request: Request, id: int, db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect:CsrfProtect = Depends()):
+    csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
+    csrf_protect.validate_csrf(csrf_token)
     Authorize.jwt_required()
     statement = select(models.Experience).where(models.Experience.id == id)
     results = db.exec(statement)
@@ -49,7 +61,9 @@ def delete_experience(id: int, db: Session = Depends(get_db), Authorize: AuthJWT
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 @router.put("/{id}")
-def update_experience(id: int, updated_experience: schemas.ExperienceReq, db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
+def update_experience(request: Request, id: int, updated_experience: schemas.ExperienceReq, db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect:CsrfProtect = Depends()):
+    csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
+    csrf_protect.validate_csrf(csrf_token)
     Authorize.jwt_required()
     statement = select(models.Experience).where(models.Experience.id == id)
     results = db.exec(statement)

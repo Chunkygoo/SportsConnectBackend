@@ -1,12 +1,18 @@
 from email import message
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from starlette.responses import JSONResponse
 from app.config import settings
 from botocore.exceptions import ClientError
 from fastapi_jwt_auth import AuthJWT
+from fastapi_csrf_protect import CsrfProtect
 
 from .. import schemas
 import boto3
+
+
+@CsrfProtect.load_config
+def get_csrf_config():
+  return schemas.CsrfSettings()
 
 router = APIRouter(
     prefix="/emails",
@@ -14,7 +20,9 @@ router = APIRouter(
 )
 
 @router.post("/send_email")
-async def send_email(email_data: schemas.EmailRequest, Authorize: AuthJWT = Depends()):
+async def send_email(request: Request, email_data: schemas.EmailRequest, Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
+    csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
+    csrf_protect.validate_csrf(csrf_token)
     Authorize.jwt_required()
 # async def send_email(emails: schemas.EmailReq):
     # message = MessageSchema(
@@ -112,7 +120,9 @@ async def send_email(email_data: schemas.EmailRequest, Authorize: AuthJWT = Depe
         return JSONResponse(content={"message": "email has been sent"})
 
 @router.post("/verify_email")
-async def verify_email(email_data: schemas.EmailVerify, Authorize: AuthJWT = Depends()):
+async def verify_email(request: Request, email_data: schemas.EmailVerify, Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
+    csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
+    csrf_protect.validate_csrf(csrf_token)
     Authorize.jwt_required()
     email_data = email_data.dict()
     email_to_verify = email_data["email"]

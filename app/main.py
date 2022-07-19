@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from fastapi.responses import JSONResponse
 from .routers import user, auth, email, experience, education, universities
+from fastapi_csrf_protect.exceptions import CsrfProtectError
 
 app = FastAPI()
 
@@ -12,6 +13,14 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
         status_code=exc.status_code,
         content={"detail": exc.message}
     )
+    
+@app.exception_handler(CsrfProtectError)
+def csrf_protect_exception_handler(request: Request, exc: CsrfProtectError):
+  return JSONResponse(
+    status_code=exc.status_code,
+      content={ 'detail':  exc.message
+    }
+  )
 
 origins = ["http://localhost:3000"]
 
@@ -22,6 +31,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 app.include_router(user.router)
 app.include_router(auth.router)

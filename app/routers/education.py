@@ -1,9 +1,15 @@
-from fastapi import Response, status, HTTPException, Depends, APIRouter
+from fastapi import Request, Response, status, HTTPException, Depends, APIRouter
 from typing import List, Optional
 from fastapi_jwt_auth import AuthJWT
 from .. import models, schemas
 from ..database import get_db
 from sqlmodel import Session, select
+from fastapi_csrf_protect import CsrfProtect
+
+
+@CsrfProtect.load_config
+def get_csrf_config():
+  return schemas.CsrfSettings()
 
 router = APIRouter(
     prefix="/educations",
@@ -11,7 +17,9 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=List[schemas.EducationRes])
-def get_educations(db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
+def get_educations(request: Request, csrf_protect:CsrfProtect = Depends(), db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
+    csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
+    csrf_protect.validate_csrf(csrf_token)
     Authorize.jwt_required()
     statement = select(models.Education).where(models.Education.owner_id==Authorize.get_jwt_subject())
     results = db.exec(statement)
@@ -19,7 +27,9 @@ def get_educations(db: Session = Depends(get_db), Authorize: AuthJWT = Depends()
     return educations
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-def create_education(education: schemas.EducationReq, Authorize: AuthJWT = Depends(), db: Session = Depends(get_db)):
+def create_education(request: Request, education: schemas.EducationReq, csrf_protect:CsrfProtect = Depends(), Authorize: AuthJWT = Depends(), db: Session = Depends(get_db)):
+    csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
+    csrf_protect.validate_csrf(csrf_token)
     Authorize.jwt_required()
     statement = select(models.Education).where(models.Education.owner_id==Authorize.get_jwt_subject())
     results = db.exec(statement)
@@ -35,7 +45,9 @@ def create_education(education: schemas.EducationReq, Authorize: AuthJWT = Depen
     return new_education
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_education(id: int, db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
+def delete_education(request: Request, id: int, db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect:CsrfProtect = Depends()):
+    csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
+    csrf_protect.validate_csrf(csrf_token)
     Authorize.jwt_required()
     statement = select(models.Education).where(models.Education.id == id)
     results = db.exec(statement)
@@ -49,7 +61,9 @@ def delete_education(id: int, db: Session = Depends(get_db), Authorize: AuthJWT 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 @router.put("/{id}")
-def update_education(id: int, updated_education: schemas.EducationReq, db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
+def update_education(request: Request, id: int, updated_education: schemas.EducationReq, db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect:CsrfProtect = Depends()):
+    csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
+    csrf_protect.validate_csrf(csrf_token)
     Authorize.jwt_required()
     statement = select(models.Education).where(models.Education.id == id)
     results = db.exec(statement)

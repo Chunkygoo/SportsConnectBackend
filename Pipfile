@@ -15,6 +15,7 @@ sqlmodel = "*"
 sqlalchemy = "==1.4.35"
 fastapi-mail = "*"
 boto3 = "*"
+fastapi-csrf-protect = "*"
 
 [packages.fastapi]
 extras = [ "all",]

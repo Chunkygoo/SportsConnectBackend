@@ -3,6 +3,8 @@ from pydantic import BaseModel, EmailStr
 from datetime import datetime, date
 from typing import Optional, List
 
+from app.config import settings
+
 # Auth
 class UserCreate(BaseModel):
     email: EmailStr
@@ -55,6 +57,7 @@ class EducationReq(EducationBase):
 
 class Token(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str
 
 class TokenData(BaseModel):
@@ -117,7 +120,8 @@ class SignUpRes(UserBase):
     birthday: Optional[date] = None
     experiences: List[ExperienceRes] = []
     educations: List[EducationRes] = []
-    token: Token
+    x_csrf_token: str = ""
+    x_csrf_refresh_token: str = ""
 
 class UniversityRes(UniversityBase):
     name: str
@@ -127,3 +131,6 @@ class UniversityRes(UniversityBase):
     division: str
     region: str
     category: str
+    
+class CsrfSettings(BaseModel):
+  secret_key:str = settings.secret_key
