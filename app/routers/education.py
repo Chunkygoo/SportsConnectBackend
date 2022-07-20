@@ -19,7 +19,7 @@ router = APIRouter(
 @router.get("/", response_model=List[schemas.EducationRes])
 def get_educations(request: Request, csrf_protect:CsrfProtect = Depends(), db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token)
+    csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_required()
     statement = select(models.Education).where(models.Education.owner_id==Authorize.get_jwt_subject())
     results = db.exec(statement)
@@ -29,7 +29,7 @@ def get_educations(request: Request, csrf_protect:CsrfProtect = Depends(), db: S
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create_education(request: Request, education: schemas.EducationReq, csrf_protect:CsrfProtect = Depends(), Authorize: AuthJWT = Depends(), db: Session = Depends(get_db)):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token)
+    csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_required()
     statement = select(models.Education).where(models.Education.owner_id==Authorize.get_jwt_subject())
     results = db.exec(statement)
@@ -47,7 +47,7 @@ def create_education(request: Request, education: schemas.EducationReq, csrf_pro
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_education(request: Request, id: int, db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect:CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token)
+    csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_required()
     statement = select(models.Education).where(models.Education.id == id)
     results = db.exec(statement)
@@ -63,7 +63,7 @@ def delete_education(request: Request, id: int, db: Session = Depends(get_db), A
 @router.put("/{id}")
 def update_education(request: Request, id: int, updated_education: schemas.EducationReq, db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect:CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token)
+    csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_required()
     statement = select(models.Education).where(models.Education.id == id)
     results = db.exec(statement)

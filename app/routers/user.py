@@ -20,7 +20,7 @@ router = APIRouter(
 @router.get('/me', response_model=schemas.UserRes)
 def get_user(request: Request, db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token)
+    csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_required()
     statement = select(models.User).where(models.User.id == Authorize.get_jwt_subject())
     results = db.exec(statement)
@@ -30,7 +30,7 @@ def get_user(request: Request, db: Session = Depends(get_db), Authorize: AuthJWT
 @router.put("/", response_model=schemas.UserRes)
 def update_user(request: Request, updated_user: schemas.UserReq, db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token)
+    csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_required()
     statement = select(models.User).where(models.User.id == Authorize.get_jwt_subject())
     results = db.exec(statement)
@@ -46,7 +46,7 @@ def update_user(request: Request, updated_user: schemas.UserReq, db: Session = D
 @router.post("/profile-photo", status_code=status.HTTP_201_CREATED)
 async def add_photo(request: Request, file: UploadFile, db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token)
+    csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_required()
     current_user = db.exec(select(models.User).where(models.User.id == Authorize.get_jwt_subject())).first()
     s3 = boto3.resource("s3",region_name=settings.aws_region, aws_access_key_id=settings.aws_access_key_id, aws_secret_access_key=settings.aws_secret_access_key)
@@ -74,7 +74,7 @@ async def add_photo(request: Request, file: UploadFile, db: Session = Depends(ge
 @router.get("/profile-photo", status_code=status.HTTP_201_CREATED)
 async def get_photo(request: Request, db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token)
+    csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_required()
     current_user = db.exec(select(models.User).where(models.User.id == Authorize.get_jwt_subject())).first()
     return current_user.profile_photo[0].photo_url if len(current_user.profile_photo) > 0 else "None"

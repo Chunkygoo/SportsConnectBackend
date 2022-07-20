@@ -31,10 +31,10 @@ class Settings(BaseSettings):
     authjwt_token_location: set = {"cookies"}
     
     # postman
-    # authjwt_cookie_secure: bool = False
+    authjwt_cookie_secure: bool = False
     
     # chrome
-    authjwt_cookie_secure: bool = True
+    # authjwt_cookie_secure: bool = True
     authjwt_cookie_samesite: str = 'none'
     
     authjwt_cookie_csrf_protect: bool = False

@@ -18,7 +18,7 @@ router = APIRouter(
 @router.get("/", response_model=List[schemas.UniversityRes])
 def get_universities(request: Request, db: Session = Depends(get_db), limit: int = 10, skip: int = 0, search: Optional[str] = "", csrf_protect: CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token)
+    csrf_protect.validate_csrf(csrf_token, request)
     statement = select(models.University)
     if search != "":
         statement = statement.where(or_(models.University.name.contains(search), 

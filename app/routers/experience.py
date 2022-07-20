@@ -19,7 +19,7 @@ router = APIRouter(
 @router.get("/", response_model=List[schemas.ExperienceRes])
 def get_experiences(request: Request, db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect:CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token)
+    csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_required()
     statement = select(models.Experience).where(models.Experience.owner_id==Authorize.get_jwt_subject())
     results = db.exec(statement)
@@ -29,7 +29,7 @@ def get_experiences(request: Request, db: Session = Depends(get_db), Authorize: 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create_experience(request: Request, experience: schemas.ExperienceReq, Authorize: AuthJWT = Depends(), db: Session = Depends(get_db), csrf_protect:CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token)
+    csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_required()
     statement = select(models.Experience).where(models.Experience.owner_id==Authorize.get_jwt_subject())
     results = db.exec(statement)
@@ -47,7 +47,7 @@ def create_experience(request: Request, experience: schemas.ExperienceReq, Autho
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_experience(request: Request, id: int, db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect:CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token)
+    csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_required()
     statement = select(models.Experience).where(models.Experience.id == id)
     results = db.exec(statement)
@@ -63,7 +63,7 @@ def delete_experience(request: Request, id: int, db: Session = Depends(get_db), 
 @router.put("/{id}")
 def update_experience(request: Request, id: int, updated_experience: schemas.ExperienceReq, db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect:CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token)
+    csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_required()
     statement = select(models.Experience).where(models.Experience.id == id)
     results = db.exec(statement)

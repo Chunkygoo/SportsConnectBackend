@@ -22,7 +22,7 @@ router = APIRouter(
 @router.post("/send_email")
 async def send_email(request: Request, email_data: schemas.EmailRequest, Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token)
+    csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_required()
 # async def send_email(emails: schemas.EmailReq):
     # message = MessageSchema(
@@ -122,7 +122,7 @@ async def send_email(request: Request, email_data: schemas.EmailRequest, Authori
 @router.post("/verify_email")
 async def verify_email(request: Request, email_data: schemas.EmailVerify, Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token)
+    csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_required()
     email_data = email_data.dict()
     email_to_verify = email_data["email"]
