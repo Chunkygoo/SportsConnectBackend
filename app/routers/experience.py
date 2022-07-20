@@ -17,9 +17,7 @@ router = APIRouter(
 
 
 @router.get("/", response_model=List[schemas.ExperienceRes])
-def get_experiences(request: Request, db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect:CsrfProtect = Depends()):
-    csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token, request)
+def get_experiences(db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect:CsrfProtect = Depends()):
     Authorize.jwt_required()
     statement = select(models.Experience).where(models.Experience.owner_id==Authorize.get_jwt_subject())
     results = db.exec(statement)

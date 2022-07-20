@@ -17,9 +17,7 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=List[schemas.EducationRes])
-def get_educations(request: Request, csrf_protect:CsrfProtect = Depends(), db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
-    csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token, request)
+def get_educations(db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
     Authorize.jwt_required()
     statement = select(models.Education).where(models.Education.owner_id==Authorize.get_jwt_subject())
     results = db.exec(statement)

@@ -18,9 +18,7 @@ router = APIRouter(
 )
 
 @router.get('/me', response_model=schemas.UserRes)
-def get_user(request: Request, db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
-    csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token, request)
+def get_user(db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
     Authorize.jwt_required()
     statement = select(models.User).where(models.User.id == Authorize.get_jwt_subject())
     results = db.exec(statement)
@@ -72,9 +70,7 @@ async def add_photo(request: Request, file: UploadFile, db: Session = Depends(ge
     return new_profile_photo.photo_url
     
 @router.get("/profile-photo", status_code=status.HTTP_201_CREATED)
-async def get_photo(request: Request, db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
-    csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token, request)
+async def get_photo(db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
     Authorize.jwt_required()
     current_user = db.exec(select(models.User).where(models.User.id == Authorize.get_jwt_subject())).first()
     return current_user.profile_photo[0].photo_url if len(current_user.profile_photo) > 0 else "None"

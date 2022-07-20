@@ -61,14 +61,11 @@ def create_user(request: Request, user: schemas.UserCreate, db: Session = Depend
     return new_user
 
 @router.delete('/logout')
-def logout(response: Response, request: Request, Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
+def logout(request: Request, Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
     csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_required()
     Authorize.unset_jwt_cookies()
-    print("logged out")
-    # response.delete_cookie("access_token_cookie")
-    # response.delete_cookie("refresh_token_cookie")
     return {"msg":"Logout successful"}
 
 @router.post('/refresh')

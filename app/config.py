@@ -27,20 +27,21 @@ class Settings(BaseSettings):
     
     
     ## for fastapi-jwt-auth
-    
     authjwt_token_location: set = {"cookies"}
     
     # postman
-    authjwt_cookie_secure: bool = False
+    # authjwt_cookie_secure: bool = False
     
     # chrome
-    # authjwt_cookie_secure: bool = True
-    authjwt_cookie_samesite: str = 'none'
-    
-    authjwt_cookie_csrf_protect: bool = False
+    authjwt_cookie_secure: bool
+    authjwt_cookie_samesite: str
+    authjwt_cookie_csrf_protect: bool
     
     # for fastapi-csrf
-    secret_key: str
+    csrf_secret_key: str
+    csrf_cookie_samesite: str
+    csrf_httponly: bool
+    csrf_cookie_secure: bool
 
     class Config:
         env_file = ".env"

@@ -133,4 +133,7 @@ class UniversityRes(UniversityBase):
     category: str
     
 class CsrfSettings(BaseModel):
-  secret_key:str = settings.secret_key
+  secret_key:str = settings.csrf_secret_key
+  cookie_samesite: str = settings.csrf_cookie_samesite
+  httponly: bool = settings.csrf_httponly
+  cookie_secure: bool = settings.csrf_cookie_secure
