@@ -18,8 +18,7 @@ def authjwt_exception_handler(request: Request, exc: AuthJWTException):
 def csrf_protect_exception_handler(request: Request, exc: CsrfProtectError):
   return JSONResponse(
     status_code=exc.status_code,
-      content={ 'detail':  exc.message
-    }
+      content={"detail": exc.message}
   )
 
 origins = ["http://localhost:3000"]

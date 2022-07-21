@@ -8,8 +8,7 @@ class Settings(BaseSettings):
     database_username: str
     authjwt_secret_key: str
     algorithm: str
-    access_token_expire_minutes: int
-    refresh_token_expire_minutes: int
+    
     mail_username: str
     mail_password: str
     mail_port: int
@@ -28,6 +27,8 @@ class Settings(BaseSettings):
     
     ## for fastapi-jwt-auth
     authjwt_token_location: set = {"cookies"}
+    authjwt_access_token_expires: int
+    authjwt_refresh_token_expires: int
     
     # postman
     # authjwt_cookie_secure: bool = False
