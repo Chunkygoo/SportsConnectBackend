@@ -4,6 +4,11 @@ from sqlalchemy import Column, String
 from datetime import date, datetime
 from sqlmodel import Field, Relationship, SQLModel
     
+# Represents the interest of player(s) in uni(s)
+class UserUniLink(SQLModel, table=True):
+    user_id: Optional[int] = Field(foreign_key="user.id", primary_key=True, nullable=False)
+    uni_id: Optional[int] = Field(foreign_key="university.id", primary_key=True, nullable=False)
+
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
     email: str = Field(sa_column=Column("email", String, unique=True, nullable=False))
@@ -21,6 +26,7 @@ class User(SQLModel, table=True):
     experiences: Optional[List["Experience"]] = Relationship(back_populates="owner")
     educations: Optional[List["Education"]] = Relationship(back_populates="owner")
     profile_photo: Optional["ProfilePhoto"] = Relationship(back_populates="owner")
+    unis: Optional[List["University"]] = Relationship(back_populates="interested_users", link_model=UserUniLink)
 
 class Experience(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
@@ -52,6 +58,7 @@ class University(SQLModel, table=True):
     category: str = Field(nullable=False, max_length=100)
     region: str = Field(nullable=False, max_length=100)
     created_at: datetime = Field(default=datetime.utcnow(), nullable=False)
+    interested_users: Optional[List["User"]] = Relationship(back_populates="unis", link_model=UserUniLink)
 
 class ProfilePhoto(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True, nullable=False)

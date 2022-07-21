@@ -4,6 +4,7 @@ from datetime import datetime, date
 from typing import Optional, List
 
 from app.config import settings
+from app.models import University
 
 # Auth
 class UserCreate(BaseModel):
@@ -92,6 +93,17 @@ class ProfilePhotoRes(BaseModel):
     photo_url: str
     is_deleted: bool
     
+class UniversityRes(UniversityBase):
+    id: int
+    name: str
+    city: str
+    state: str
+    conference: str
+    division: str
+    region: str
+    category: str
+    interested: Optional[bool] = None
+    
 class UserRes(UserBase):
     email: EmailStr
     first_name: Optional[str] = ""
@@ -106,6 +118,7 @@ class UserRes(UserBase):
     experiences: List[ExperienceRes] = []
     educations: List[EducationRes] = []
     profile_photo: List[ProfilePhotoRes] = []
+    unis: List[UniversityRes] = []
     
 class SignUpRes(UserBase):
     email: EmailStr
@@ -122,15 +135,6 @@ class SignUpRes(UserBase):
     educations: List[EducationRes] = []
     x_csrf_token: str = ""
     x_csrf_refresh_token: str = ""
-
-class UniversityRes(UniversityBase):
-    name: str
-    city: str
-    state: str
-    conference: str
-    division: str
-    region: str
-    category: str
     
 class CsrfSettings(BaseModel):
   secret_key:str = settings.csrf_secret_key

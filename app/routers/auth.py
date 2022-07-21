@@ -60,18 +60,18 @@ def create_user(request: Request, user: schemas.UserCreate, db: Session = Depend
     Authorize.set_refresh_cookies(refresh_token)
     return new_user
 
-@router.delete('/logout')
+@router.post('/logout')
 def logout(request: Request, Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
     csrf_protect.validate_csrf(csrf_token, request)
-    # Authorize.jwt_required() # we do not need to be logged in to log out because the access_token and refresh_token could be expired 
+    # Authorize.jwt_required() # we do not need to be logged in to log out because the access_token and refresh_token could both be expired 
     Authorize.unset_jwt_cookies()
     return {"msg":"Logout successful"}
 
 @router.post('/refresh')
 def refresh(request: Request, Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
-    csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token, request)
+    # csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
+    # csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_refresh_token_required() # uses refresh_token
     new_access_token = Authorize.create_access_token(subject=Authorize.get_jwt_subject(), algorithm=settings.algorithm)
     Authorize.set_access_cookies(new_access_token)
