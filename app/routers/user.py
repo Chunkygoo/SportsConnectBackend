@@ -75,7 +75,7 @@ async def get_photo(db: Session = Depends(get_db), Authorize: AuthJWT = Depends(
     current_user = db.exec(select(models.User).where(models.User.id == Authorize.get_jwt_subject())).first()
     return current_user.profile_photo[0].photo_url if len(current_user.profile_photo) > 0 else "None"
 
-@router.post("/interested_in/{uni_id}/", status_code=status.HTTP_201_CREATED, response_model=schemas.UserRes)
+@router.post("/interested_in/{uni_id}", status_code=status.HTTP_201_CREATED, response_model=schemas.UserRes)
 def add_interest_in_uni(request: Request, uni_id: int, Authorize: AuthJWT = Depends(), db: Session = Depends(get_db), csrf_protect: CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
     csrf_protect.validate_csrf(csrf_token, request)
@@ -84,13 +84,15 @@ def add_interest_in_uni(request: Request, uni_id: int, Authorize: AuthJWT = Depe
     uni = db.exec(select(models.University).where(models.University.id == uni_id)).first()
     if uni == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"University with id: {uni} does not exist")
+    if uni in current_user.unis:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"University with id: {uni} was already previously of interest")
     current_user.unis.append(uni)
     db.add(current_user)
     db.commit()
     db.refresh(current_user)
     return current_user
 
-@router.delete("/remove_interest_in/{uni_id}/", status_code=status.HTTP_201_CREATED, response_model=schemas.UserRes)
+@router.delete("/remove_interest_in/{uni_id}", status_code=status.HTTP_201_CREATED, response_model=schemas.UserRes)
 def add_interest_in_uni(request: Request, uni_id: int, Authorize: AuthJWT = Depends(), db: Session = Depends(get_db), csrf_protect: CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
     csrf_protect.validate_csrf(csrf_token, request)
@@ -99,6 +101,8 @@ def add_interest_in_uni(request: Request, uni_id: int, Authorize: AuthJWT = Depe
     uni = db.exec(select(models.University).where(models.University.id == uni_id)).first()
     if uni == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"University with id: {uni} does not exist")
+    if uni not in current_user.unis:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"University with id: {uni} was not previously of interest")
     current_user.unis.remove(uni)
     db.add(current_user)
     db.commit()
