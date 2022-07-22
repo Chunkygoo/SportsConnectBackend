@@ -59,7 +59,7 @@ def get_universities(db: Session = Depends(get_db), limit: int = 10, skip: int =
         all_universities_plus_interest_field.append(uni_plus_interest)
     return all_universities_plus_interest_field
 
-@router.get("/interested_only", response_model=List[schemas.University])
+@router.get("/interested_only", response_model=List[schemas.UniversityRes])
 def get_universities_of_interest(db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), limit: int = 10, skip: int = 0):
     Authorize.jwt_required()
     statement = select(models.User).where(models.User.id==Authorize.get_jwt_subject())
@@ -68,4 +68,9 @@ def get_universities_of_interest(db: Session = Depends(get_db), Authorize: AuthJ
     else:
         statement = statement.offset(skip).limit(limit)
     results = db.exec(statement)
-    return results.first().unis
+    all_universities_plus_interest_field = []
+    for uni in results.first().unis:
+        uni_plus_interest = uni.dict()
+        uni_plus_interest["interested"] = True
+        all_universities_plus_interest_field.append(uni_plus_interest)
+    return all_universities_plus_interest_field
