@@ -15,16 +15,9 @@ sqlmodel = "*"
 sqlalchemy = "==1.4.35"
 fastapi-mail = "*"
 boto3 = "*"
-fastapi-csrf-protect = "*"
-
-[packages.fastapi]
-extras = [ "all",]
-
-[packages.passlib]
-extras = [ "bcrypt",]
-
-[packages.python-jose]
-extras = [ "cryptography",]
-
-[packages.fastapi-jwt-auth]
-extras = [ "asymmetric",]
+setuptools = "*"
+fastapi = {extras = [ "all",]}
+passlib = {extras = [ "bcrypt",]}
+python-jose = {extras = [ "cryptography",]}
+fastapi-jwt-auth = {git = "https://github.com/CalvinTai0402/fastapi-jwt-auth.git", editable = true}
+fastapi-csrf-protect = {editable = true, git = "https://github.com/CalvinTai0402/fastapi-csrf-protect.git"}

@@ -61,9 +61,10 @@ def create_user(request: Request, user: schemas.UserCreate, db: Session = Depend
     return new_user
 
 @router.post('/logout')
-def logout(request: Request, Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
+def logout(response: Response, request: Request, Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
     csrf_protect.validate_csrf(csrf_token, request)
+    csrf_protect.unset_csrf_cookie(response)
     # Authorize.jwt_required() # we do not need to be logged in to log out because the access_token and refresh_token could both be expired 
     Authorize.unset_jwt_cookies()
     return {"msg":"Logout successful"}
