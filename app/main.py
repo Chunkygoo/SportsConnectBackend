@@ -4,6 +4,7 @@ from fastapi_jwt_auth.exceptions import AuthJWTException
 from fastapi.responses import JSONResponse
 from .routers import user, auth, email, experience, education, universities
 from fastapi_csrf_protect.exceptions import CsrfProtectError
+from .config import settings
 
 app = FastAPI()
 
@@ -21,7 +22,7 @@ def csrf_protect_exception_handler(request: Request, exc: CsrfProtectError):
       content={"detail": exc.message}
   )
 
-origins = ["http://localhost:3000"]
+origins = [settings.origin_0]
 
 app.add_middleware(
     CORSMiddleware,

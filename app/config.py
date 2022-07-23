@@ -43,6 +43,8 @@ class Settings(BaseSettings):
     csrf_cookie_samesite: str
     csrf_httponly: bool
     csrf_cookie_secure: bool
+    
+    origin_0: str
 
     class Config:
         env_file = ".env"
