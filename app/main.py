@@ -6,7 +6,7 @@ from .routers import user, auth, email, experience, education, universities
 from fastapi_csrf_protect.exceptions import CsrfProtectError
 from .config import settings
 
-app = FastAPI()
+app = FastAPI(openapi_url=None, redoc_url=None)
 
 @app.exception_handler(AuthJWTException)
 def authjwt_exception_handler(request: Request, exc: AuthJWTException):
