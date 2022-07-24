@@ -19,5 +19,3 @@ setuptools = "*"
 fastapi = {extras = [ "all",]}
 passlib = {extras = [ "bcrypt",]}
 python-jose = {extras = [ "cryptography",]}
-fastapi-jwt-auth = {git = "https://github.com/CalvinTai0402/fastapi-jwt-auth.git", editable = true}
-fastapi-csrf-protect = {editable = true, git = "https://github.com/CalvinTai0402/fastapi-csrf-protect.git"}
