@@ -19,10 +19,10 @@ class Settings(BaseSettings):
     mail_to: str
     use_credentials: bool
     validate_certs: bool
-    aws_region: str
+    aws_region_: str
     s3_bucket_name: str
-    aws_access_key_id: str
-    aws_secret_access_key: str
+    aws_access_key_id_: str
+    aws_secret_access_key_: str
     
     
     ## for fastapi-jwt-auth

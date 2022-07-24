@@ -47,7 +47,7 @@ async def add_photo(request: Request, file: UploadFile, db: Session = Depends(ge
     csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_required()
     current_user = db.exec(select(models.User).where(models.User.id == Authorize.get_jwt_subject())).first()
-    s3 = boto3.resource("s3",region_name=settings.aws_region, aws_access_key_id=settings.aws_access_key_id, aws_secret_access_key=settings.aws_secret_access_key)
+    s3 = boto3.resource("s3",region_name=settings.aws_region_, aws_access_key_id=settings.aws_access_key_id_, aws_secret_access_key=settings.aws_secret_access_key_)
     bucket = s3.Bucket(settings.s3_bucket_name)
 
     # if exists, delete from s3 and db first

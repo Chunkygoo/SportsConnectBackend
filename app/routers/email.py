@@ -85,7 +85,7 @@ async def send_email(request: Request, email_data: schemas.EmailRequest, Authori
     </body>
     </html>""".format(name = name, email=email, message=message)
     CHARSET = "UTF-8"
-    client = boto3.client('ses',region_name=settings.aws_region, aws_access_key_id=settings.aws_access_key_id, aws_secret_access_key=settings.aws_secret_access_key)
+    client = boto3.client('ses',region_name=settings.aws_region_, aws_access_key_id=settings.aws_access_key_id_, aws_secret_access_key=settings.aws_secret_access_key_)
     try:
         response = client.send_email(
             Destination={
