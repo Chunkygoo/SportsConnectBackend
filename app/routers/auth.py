@@ -23,8 +23,8 @@ def set_csrf_cookie_and_get_csrf_token(response: Response, csrf_protect:CsrfProt
 
 @router.post('/login')
 def login(user_credentials: schemas.UserLogin, request: Request, db: Session = Depends(database.get_db), Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
-    csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token, request)
+    # csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
+    # csrf_protect.validate_csrf(csrf_token, request)
     user_credentials = user_credentials.dict()
     user = db.query(models.User).filter(models.User.email == user_credentials.get("email")).first()
     if not user:
@@ -41,8 +41,8 @@ def login(user_credentials: schemas.UserLogin, request: Request, db: Session = D
 
 @router.post("/signup", status_code=status.HTTP_201_CREATED, response_model=schemas.SignUpRes)
 def create_user(request: Request, user: schemas.UserCreate, db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
-    csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    csrf_protect.validate_csrf(csrf_token, request)
+    # csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
+    # csrf_protect.validate_csrf(csrf_token, request)
     hashed_password = utils.hash(user.password)
     user.password = hashed_password
     new_user = models.User(**user.dict())
