@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from .routers import user, auth, email, experience, education, universities
 from fastapi_csrf_protect.exceptions import CsrfProtectError
 from .config import settings
+# from mangum import Mangum
 
 app = FastAPI(openapi_url=None, redoc_url=None)
 
@@ -32,10 +33,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+@app.get('/status')
+def get_user():
+    return {"msg": "up"}
+  
 app.include_router(user.router)
 app.include_router(auth.router)
 app.include_router(email.router)
 app.include_router(experience.router)
 app.include_router(education.router)
 app.include_router(universities.router)
+
+# handler = Mangum(app)

@@ -126,7 +126,7 @@ async def verify_email(request: Request, email_data: schemas.EmailVerify, Author
     Authorize.jwt_required()
     email_data = email_data.dict()
     email_to_verify = email_data["email"]
-    client = boto3.client('ses')
+    client = boto3.client('ses',region_name=settings.aws_region_, aws_access_key_id=settings.aws_access_key_id_, aws_secret_access_key=settings.aws_secret_access_key_)
     response = client.verify_email_identity(
         EmailAddress=email_to_verify,
     )

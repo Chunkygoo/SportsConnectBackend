@@ -1,0 +1,15 @@
+pipenv lock -r > requirements.txt (
+    change the updated packages as such:
+    git+https://github.com/CalvinTai0402/fastapi-csrf-protect.git#egg=fastapi-csrf-protect
+    git+https://github.com/CalvinTai0402/fastapi-jwt-auth.git#egg=fastapi-jwt-auth
+)
+pip install -t lib -r requirements.txt
+rm -r ./lib/psycopg2*
+[copy psycopg2 into directory]
+(cd lib; zip ../lambda_function.zip -r .)
+zip lambda_function.zip -u ./app/*.py
+zip lambda_function.zip -u ./app/routers/*.py
+
+https://gitlab.com/psyhomb/aws-psycopg2#prebuilt-modules
+h11==0.12; python_version >= '3.6'
+3.9, 3.9
