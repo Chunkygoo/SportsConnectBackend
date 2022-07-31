@@ -1,7 +1,7 @@
 services:
   app:
-    build: ./src
+    build: ./
     ports:
       - '8000:80'
     env_file:
-      - ../.env
+      - .env

@@ -23,3 +23,4 @@ fastapi-jwt-auth = {git = "https://github.com/CalvinTai0402/fastapi-jwt-auth.git
 fastapi-csrf-protect = {editable = true, git = "https://github.com/CalvinTai0402/fastapi-csrf-protect.git"}
 mangum = "*"
 aws-cdk-lib = "*"
+gunicorn = "*"

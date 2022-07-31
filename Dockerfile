@@ -1,10 +1,18 @@
-FROM ubuntu:latest
-RUN apt-get update && apt-get install -y python3-pip git\
-    && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-WORKDIR /src
-COPY ./requirements.txt /src/requirements.txt
-RUN pip3 install --no-cache-dir --upgrade -r /src/requirements.txt
-COPY app /src/app
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
+FROM python:3.9-slim-buster
+
+WORKDIR /usr/src
+
+ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE 1
+
+RUN apt-get update && apt-get -y install \
+    netcat gcc postgresql python3-pip git\
+    && apt-get clean
+
+RUN pip3 install --upgrade pip
+COPY ./requirements.txt /usr/src/
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+COPY . /usr/src/
+
+CMD gunicorn -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 app.main:app

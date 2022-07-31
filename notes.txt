@@ -1,8 +1,11 @@
-pipenv lock -r > requirements.txt (
-    change the updated packages as such:
-    git+https://github.com/CalvinTai0402/fastapi-csrf-protect.git#egg=fastapi-csrf-protect
-    git+https://github.com/CalvinTai0402/fastapi-jwt-auth.git#egg=fastapi-jwt-auth
-)
+pipenv install gunicorn
+pipenv lock -r > requirements.txt
+aws sts get-caller-identity
+sudo ./deploy.sh
+
+
+
+# legacy lambda
 pip install -t lib -r requirements.txt
 rm -r ./lib/psycopg2*
 [copy psycopg2 into directory]

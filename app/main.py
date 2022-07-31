@@ -33,9 +33,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get('/status')
-def get_user():
-    return {"msg": "up"}
+@app.get('/health')
+def check_health():
+    return {"health": "healthy"}
   
 app.include_router(user.router)
 app.include_router(auth.router)
