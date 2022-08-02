@@ -26,7 +26,7 @@ def login(user_credentials: schemas.UserLogin, request: Request, db: Session = D
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
     csrf_protect.validate_csrf(csrf_token, request)
     user_credentials = user_credentials.dict()
-    user = db.query(models.User).filter(models.User.email == user_credentials.get("email")).first()
+    user = db.query(models.User).filter(models.User.username == user_credentials.get("username")).first()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail=f"Invalid credentials")
@@ -48,9 +48,9 @@ def create_user(request: Request, user: schemas.UserCreate, db: Session = Depend
     new_user = models.User(**user.dict())
     users = db.query(models.User).all()
     for user in users:
-        if user.email == new_user.email:
+        if user.username == new_user.username:
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                                detail=f"Email is used by another user")
+                                detail=f"Username is used by another user")
     db.add(new_user)
     db.commit()
     db.refresh(new_user)

@@ -11,10 +11,11 @@ class UserUniLink(SQLModel, table=True):
 
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
-    email: str = Field(sa_column=Column("email", String, unique=True, nullable=False))
+    email: str = Field(default="", max_length=50, nullable=True)
     password: str = Field(nullable=False)
-    first_name: str = Field(default="", max_length=50, nullable=True)
-    last_name: str = Field(default="", max_length=50, nullable=True)
+    name: str = Field(default="", max_length=50, nullable=True)
+    wechatId: str = Field(default="", max_length=50, nullable=True)
+    username: str = Field(sa_column=Column("username", String, unique=True, nullable=False))
     preferred_name: str = Field(default="", max_length=50, nullable=True)
     bio: str = Field(default="", max_length=1000, nullable=True)
     gender: str = Field(default="", max_length=50, nullable=True)

@@ -1,5 +1,5 @@
 from unicodedata import category
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from datetime import datetime, date
 from typing import Optional, List
 
@@ -8,11 +8,11 @@ from app.models import University
 
 # Auth
 class UserCreate(BaseModel):
-    email: EmailStr
+    username: str
     password: str
 
 class UserLogin(BaseModel):
-    email: EmailStr
+    username: str
     password: str
 
 # Base
@@ -34,8 +34,9 @@ class UniversityBase(BaseModel):
         
 #Req
 class UserReq(UserBase):
-    first_name: Optional[str] = ""
-    last_name: Optional[str] = ""
+    name: Optional[str] = ""
+    email: Optional[str] = ""
+    wechatId: Optional[str] = ""
     preferred_name: Optional[str] = ""
     bio: Optional[str] = ""
     gender: Optional[str] = ""
@@ -105,9 +106,9 @@ class UniversityRes(UniversityBase):
     interested: Optional[bool] = None
     
 class UserRes(UserBase):
-    email: EmailStr
-    first_name: Optional[str] = ""
-    last_name: Optional[str] = ""
+    name: Optional[str] = ""
+    email: Optional[str] = ""
+    wechatId: Optional[str] = ""
     preferred_name: Optional[str] = ""
     bio: Optional[str] = ""
     gender: Optional[str] = ""
@@ -121,9 +122,9 @@ class UserRes(UserBase):
     unis: List[UniversityRes] = []
     
 class SignUpRes(UserBase):
-    email: EmailStr
-    first_name: Optional[str] = ""
-    last_name: Optional[str] = ""
+    name: Optional[str] = ""
+    email: Optional[str] = ""
+    wechatId: Optional[str] = ""
     preferred_name: Optional[str] = ""
     bio: Optional[str] = ""
     gender: Optional[str] = ""
