@@ -14,7 +14,7 @@ def get_csrf_config():
 def get_config():
     return settings
 
-router = APIRouter(tags=['Authentication'])
+router = APIRouter(prefix="/auth", tags=['Authentication'])
 
 @router.get('/csrf_token')
 def set_csrf_cookie_and_get_csrf_token(response: Response, csrf_protect:CsrfProtect = Depends()):
@@ -33,8 +33,8 @@ def login(user_credentials: schemas.UserLogin, request: Request, db: Session = D
     if not utils.verify(user_credentials.get("password"), user.password):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail=f"Invalid credentials")
-    access_token = Authorize.create_access_token(subject=user.id, algorithm=settings.algorithm)
-    refresh_token = Authorize.create_refresh_token(subject=user.id, algorithm=settings.algorithm)
+    access_token = Authorize.create_access_token(subject=user.id, algorithm=settings.algorithm, expires_time=settings.authjwt_access_token_expires)
+    refresh_token = Authorize.create_refresh_token(subject=user.id, algorithm=settings.algorithm, expires_time=settings.authjwt_refresh_token_expires)
     Authorize.set_access_cookies(access_token)
     Authorize.set_refresh_cookies(refresh_token)
     return {"msg": "log in successful"}
@@ -54,8 +54,8 @@ def create_user(request: Request, user: schemas.UserCreate, db: Session = Depend
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    access_token = Authorize.create_access_token(subject=new_user.id, algorithm=settings.algorithm)
-    refresh_token = Authorize.create_refresh_token(subject=new_user.id, algorithm=settings.algorithm)
+    access_token = Authorize.create_access_token(subject=new_user.id, algorithm=settings.algorithm, expires_time=settings.authjwt_access_token_expires)
+    refresh_token = Authorize.create_refresh_token(subject=new_user.id, algorithm=settings.algorithm, expires_time=settings.authjwt_refresh_token_expires)
     Authorize.set_access_cookies(access_token)
     Authorize.set_refresh_cookies(refresh_token)
     return new_user
@@ -71,9 +71,9 @@ def logout(response: Response, request: Request, Authorize: AuthJWT = Depends(),
 
 @router.post('/refresh')
 def refresh(request: Request, Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
-    # csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
-    # csrf_protect.validate_csrf(csrf_token, request)
+    csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
+    csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_refresh_token_required() # uses refresh_token
-    new_access_token = Authorize.create_access_token(subject=Authorize.get_jwt_subject(), algorithm=settings.algorithm)
+    new_access_token = Authorize.create_access_token(subject=Authorize.get_jwt_subject(), algorithm=settings.algorithm, expires_time=settings.authjwt_access_token_expires)
     Authorize.set_access_cookies(new_access_token)
     return {"msg": "refresh successful"}

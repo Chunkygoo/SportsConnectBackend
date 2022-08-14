@@ -16,7 +16,7 @@ router = APIRouter(
     tags=['Education']
 )
 
-@router.get("/", response_model=List[schemas.EducationRes])
+@router.get("", response_model=List[schemas.EducationRes])
 def get_educations(db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
     Authorize.jwt_required()
     statement = select(models.Education).where(models.Education.owner_id==Authorize.get_jwt_subject())
@@ -24,7 +24,7 @@ def get_educations(db: Session = Depends(get_db), Authorize: AuthJWT = Depends()
     educations = results.all()
     return educations
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED)
 def create_education(request: Request, education: schemas.EducationReq, csrf_protect:CsrfProtect = Depends(), Authorize: AuthJWT = Depends(), db: Session = Depends(get_db)):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
     csrf_protect.validate_csrf(csrf_token, request)

@@ -16,7 +16,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=List[schemas.ExperienceRes])
+@router.get("", response_model=List[schemas.ExperienceRes])
 def get_experiences(db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect:CsrfProtect = Depends()):
     Authorize.jwt_required()
     statement = select(models.Experience).where(models.Experience.owner_id==Authorize.get_jwt_subject())
@@ -24,7 +24,7 @@ def get_experiences(db: Session = Depends(get_db), Authorize: AuthJWT = Depends(
     experiences = results.all()
     return experiences
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED)
 def create_experience(request: Request, experience: schemas.ExperienceReq, Authorize: AuthJWT = Depends(), db: Session = Depends(get_db), csrf_protect:CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
     csrf_protect.validate_csrf(csrf_token, request)

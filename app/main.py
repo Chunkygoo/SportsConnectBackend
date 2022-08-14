@@ -5,9 +5,11 @@ from fastapi.responses import JSONResponse
 from .routers import user, auth, email, experience, education, universities
 from fastapi_csrf_protect.exceptions import CsrfProtectError
 from .config import settings
-# from mangum import Mangum
+from mangum import Mangum
 
-app = FastAPI(openapi_url=None, redoc_url=None)
+# app = FastAPI(openapi_url=None, redoc_url=None)
+app = FastAPI()
+
 
 @app.exception_handler(AuthJWTException)
 def authjwt_exception_handler(request: Request, exc: AuthJWTException):
@@ -35,7 +37,7 @@ app.add_middleware(
 
 @app.get('/health')
 def check_health():
-    return {"health": "healthy"}
+    return {"health": "healthy (lambda)"}
   
 app.include_router(user.router)
 app.include_router(auth.router)
@@ -44,4 +46,4 @@ app.include_router(experience.router)
 app.include_router(education.router)
 app.include_router(universities.router)
 
-# handler = Mangum(app)
+handler = Mangum(app)

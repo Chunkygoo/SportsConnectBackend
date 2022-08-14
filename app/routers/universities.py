@@ -30,7 +30,7 @@ def get_universities(db: Session = Depends(get_db), limit: int = 10, skip: int =
     all_universities = results.all()
     return all_universities
 
-@router.get("/", response_model=List[schemas.UniversityRes])
+@router.get("", response_model=List[schemas.UniversityRes])
 def get_universities(db: Session = Depends(get_db), limit: int = 10, skip: int = 0, search: Optional[str] = "", Authorize: AuthJWT = Depends()):
     Authorize.jwt_required()
     statement = select(models.University)

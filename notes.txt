@@ -1,18 +1,4 @@
-pipenv install gunicorn
 pipenv lock -r > requirements.txt
 aws sts get-caller-identity
-sudo ./deploy.sh
-
-
-
-# legacy lambda
-pip install -t lib -r requirements.txt
-rm -r ./lib/psycopg2*
-[copy psycopg2 into directory]
-(cd lib; zip ../lambda_function.zip -r .)
-zip lambda_function.zip -u ./app/*.py
-zip lambda_function.zip -u ./app/routers/*.py
-
-https://gitlab.com/psyhomb/aws-psycopg2#prebuilt-modules
-h11==0.12; python_version >= '3.6'
-3.9, 3.9
+This is where you can get a psycopg2 binary that is built
+from source: https://gitlab.com/psyhomb/aws-psycopg2#prebuilt-modules

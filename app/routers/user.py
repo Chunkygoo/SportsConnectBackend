@@ -1,3 +1,4 @@
+from distutils.command.config import config
 from fastapi import Request, Response, UploadFile, status, HTTPException, Depends, APIRouter
 from .. import models, schemas
 from ..database import get_db
@@ -25,7 +26,7 @@ def get_user(db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
     user = results.first()
     return user
 
-@router.put("/", response_model=schemas.UserRes)
+@router.put("", response_model=schemas.UserRes)
 def update_user(request: Request, updated_user: schemas.UserReq, db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
     csrf_protect.validate_csrf(csrf_token, request)
@@ -41,41 +42,43 @@ def update_user(request: Request, updated_user: schemas.UserReq, db: Session = D
     db.refresh(user)
     return user
 
-@router.post("/profile-photo", status_code=status.HTTP_201_CREATED)
+@router.post("/profile_photo", status_code=status.HTTP_201_CREATED)
 async def add_photo(request: Request, file: UploadFile, db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
     csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_required()
     current_user = db.exec(select(models.User).where(models.User.id == Authorize.get_jwt_subject())).first()
-    s3 = boto3.resource("s3",region_name=settings.aws_region_, aws_access_key_id=settings.aws_access_key_id_, aws_secret_access_key=settings.aws_secret_access_key_)
-    bucket = s3.Bucket(settings.s3_bucket_name)
+    s3 = boto3.client('s3', aws_access_key_id=settings.aws_access_key_id_, aws_secret_access_key=settings.aws_secret_access_key_)
 
     # if exists, delete from s3 and db first
     if len(current_user.profile_photo) > 0:
-        s3.Object(settings.s3_bucket_name, current_user.profile_photo[0].photo_name).delete()
+        s3.delete_object(Bucket=settings.s3_bucket_name, Key=current_user.profile_photo[0].photo_name)
         statement = select(models.ProfilePhoto).where(models.ProfilePhoto.photo_url == current_user.profile_photo[0].photo_url)
         results = db.exec(statement)
         current_user_profile_photo = results.first()
         db.delete(current_user_profile_photo)
         db.commit()
     
-    file_name = file.filename+str(uuid.uuid4())
-    bucket.upload_fileobj(file.file, file_name)
-    uploaded_file_url = f"https://{settings.s3_bucket_name}.s3.amazonaws.com/{file_name}"
-    new_profile_photo = models.ProfilePhoto(owner_id=Authorize.get_jwt_subject(), photo_name=file_name, photo_url=uploaded_file_url)
+    filename = file.filename
+    split_file_name = filename.split(".")
+    file_name_unique = "".join(split_file_name[:-1])+str(uuid.uuid4())+"."+split_file_name[-1]
+    data = file.file._file
+    s3.upload_fileobj(data, settings.s3_bucket_name, file_name_unique)
+    uploaded_file_url = f"https://{settings.s3_bucket_name}.s3.amazonaws.com/{file_name_unique}"
+    new_profile_photo = models.ProfilePhoto(owner_id=Authorize.get_jwt_subject(), photo_name=file_name_unique, photo_url=uploaded_file_url)
     new_profile_photo.owner = current_user
     db.add(new_profile_photo)
     db.commit()
     db.refresh(new_profile_photo)
     return new_profile_photo.photo_url
     
-@router.get("/profile-photo", status_code=status.HTTP_201_CREATED)
+@router.get("/profile_photo", status_code=status.HTTP_201_CREATED)
 async def get_photo(db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
     Authorize.jwt_required()
     current_user = db.exec(select(models.User).where(models.User.id == Authorize.get_jwt_subject())).first()
     return current_user.profile_photo[0].photo_url if len(current_user.profile_photo) > 0 else "None"
 
-@router.post("/interested_in/{uni_id}", status_code=status.HTTP_201_CREATED, response_model=schemas.UserRes)
+@router.post("/interest/{uni_id}", status_code=status.HTTP_201_CREATED, response_model=schemas.UserRes)
 def add_interest_in_uni(request: Request, uni_id: int, Authorize: AuthJWT = Depends(), db: Session = Depends(get_db), csrf_protect: CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
     csrf_protect.validate_csrf(csrf_token, request)
@@ -92,7 +95,7 @@ def add_interest_in_uni(request: Request, uni_id: int, Authorize: AuthJWT = Depe
     db.refresh(current_user)
     return current_user
 
-@router.delete("/remove_interest_in/{uni_id}", status_code=status.HTTP_201_CREATED, response_model=schemas.UserRes)
+@router.delete("/interest/{uni_id}", status_code=status.HTTP_201_CREATED, response_model=schemas.UserRes)
 def add_interest_in_uni(request: Request, uni_id: int, Authorize: AuthJWT = Depends(), db: Session = Depends(get_db), csrf_protect: CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
     csrf_protect.validate_csrf(csrf_token, request)
