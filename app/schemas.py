@@ -105,6 +105,18 @@ class UniversityRes(UniversityBase):
     category: str
     interested: Optional[bool] = None
     
+class UniversityResWithLink(UniversityBase):
+    id: int
+    name: str
+    city: str
+    state: str
+    conference: str
+    division: str
+    region: str
+    category: str
+    interested: Optional[bool] = None
+    link: str
+    
 class UserRes(UserBase):
     name: Optional[str] = ""
     email: Optional[str] = ""

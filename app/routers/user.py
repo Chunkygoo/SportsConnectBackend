@@ -95,7 +95,7 @@ def add_interest_in_uni(request: Request, uni_id: int, Authorize: AuthJWT = Depe
     db.refresh(current_user)
     return current_user
 
-@router.delete("/interest/{uni_id}", status_code=status.HTTP_201_CREATED, response_model=schemas.UserRes)
+@router.delete("/interest/{uni_id}", status_code=status.HTTP_204_NO_CONTENT)
 def add_interest_in_uni(request: Request, uni_id: int, Authorize: AuthJWT = Depends(), db: Session = Depends(get_db), csrf_protect: CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
     csrf_protect.validate_csrf(csrf_token, request)
@@ -110,7 +110,7 @@ def add_interest_in_uni(request: Request, uni_id: int, Authorize: AuthJWT = Depe
     db.add(current_user)
     db.commit()
     db.refresh(current_user)
-    return current_user
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 # For debug purposes
 # @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)

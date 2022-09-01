@@ -68,3 +68,8 @@ class ProfilePhoto(SQLModel, table=True):
     is_deleted: bool = Field(default=False, nullable=True)
     owner_id: int = Field(nullable=False,  foreign_key="user.id")
     owner: User = Relationship(back_populates="profile_photo")
+
+class UniversityLink(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
+    name: str = Field(nullable=False, max_length=100)
+    link: str = Field(nullable=False, max_length=100)
