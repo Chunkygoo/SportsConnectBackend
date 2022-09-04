@@ -77,3 +77,12 @@ def update_experience(request: Request, id: int, updated_experience: schemas.Exp
     db.commit()
     db.refresh(experience)
     return experience
+
+@router.get("/user/{user_id}", response_model=List[schemas.ExperienceRes])
+def get_experiences_for_user(user_id: int, db: Session = Depends(get_db)):
+    statement = select(models.User).where(models.User.id == user_id).where(models.User.public == True)
+    results = db.exec(statement)
+    user = results.first()
+    if user == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"The user does not exist")
+    return user.experiences

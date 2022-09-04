@@ -17,6 +17,7 @@ class UserLogin(BaseModel):
 
 # Base
 class UserBase(BaseModel):
+    public: Optional[bool] = False
     class Config:
         orm_mode = True
         
@@ -104,20 +105,12 @@ class UniversityRes(UniversityBase):
     region: str
     category: str
     interested: Optional[bool] = None
-    
-class UniversityResWithLink(UniversityBase):
-    id: int
-    name: str
-    city: str
-    state: str
-    conference: str
-    division: str
-    region: str
-    category: str
-    interested: Optional[bool] = None
+
+class UniversityResWithLink(UniversityRes):
     link: str
     
 class UserRes(UserBase):
+    id: Optional[int]
     name: Optional[str] = ""
     email: Optional[str] = ""
     wechatId: Optional[str] = ""
@@ -132,6 +125,9 @@ class UserRes(UserBase):
     educations: List[EducationRes] = []
     profile_photo: List[ProfilePhotoRes] = []
     unis: List[UniversityRes] = []
+
+class UserMe(UserRes):
+    role: Optional[str] = "user"
     
 class SignUpRes(UserBase):
     name: Optional[str] = ""

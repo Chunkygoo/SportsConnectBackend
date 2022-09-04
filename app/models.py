@@ -1,9 +1,8 @@
 from typing import List, Optional
-from unicodedata import category
 from sqlalchemy import Column, String
 from datetime import date, datetime
 from sqlmodel import Field, Relationship, SQLModel
-    
+
 # Represents the interest of player(s) in uni(s)
 class UserUniLink(SQLModel, table=True):
     user_id: Optional[int] = Field(foreign_key="user.id", primary_key=True, nullable=False)
@@ -28,6 +27,8 @@ class User(SQLModel, table=True):
     educations: Optional[List["Education"]] = Relationship(back_populates="owner")
     profile_photo: Optional["ProfilePhoto"] = Relationship(back_populates="owner")
     unis: Optional[List["University"]] = Relationship(back_populates="interested_users", link_model=UserUniLink)
+    public: bool = Field(default=False, nullable=False)
+    role: str = Field(default="user", nullable=False)
 
 class Experience(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True, nullable=False)

@@ -77,3 +77,12 @@ def update_education(request: Request, id: int, updated_education: schemas.Educa
     db.commit()
     db.refresh(education)
     return education
+
+@router.get("/user/{user_id}", response_model=List[schemas.ExperienceRes])
+def get_educations_for_user(user_id: int, db: Session = Depends(get_db)):
+    statement = select(models.User).where(models.User.id == user_id).where(models.User.public == True)
+    results = db.exec(statement)
+    user = results.first()
+    if user == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"The user does not exist")
+    return user.educations

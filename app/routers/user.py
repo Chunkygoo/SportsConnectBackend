@@ -18,8 +18,8 @@ router = APIRouter(
     tags=['Users']
 )
 
-@router.get('/me', response_model=schemas.UserRes)
-def get_user(db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
+@router.get('/me', response_model=schemas.UserMe)
+def get_me(db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
     Authorize.jwt_required()
     statement = select(models.User).where(models.User.id == Authorize.get_jwt_subject())
     results = db.exec(statement)
@@ -111,6 +111,15 @@ def add_interest_in_uni(request: Request, uni_id: int, Authorize: AuthJWT = Depe
     db.commit()
     db.refresh(current_user)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+@router.get('/public/{user_id}', response_model=schemas.UserRes)
+def get_user(user_id: int, db: Session = Depends(get_db)):
+    statement = select(models.User).where(models.User.id == user_id).where(models.User.public == True)
+    results = db.exec(statement)
+    user = results.first()
+    if user == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"The user does not exist")
+    return user
 
 # For debug purposes
 # @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
