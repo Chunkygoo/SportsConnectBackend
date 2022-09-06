@@ -1,4 +1,3 @@
-from distutils.command.config import config
 from fastapi import Request, Response, UploadFile, status, HTTPException, Depends, APIRouter
 from .. import models, schemas
 from ..database import get_db
@@ -128,7 +127,7 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
 #     results = db.exec(statement)
 #     user = results.first()
 #     if user == None:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"experience with id: {id} does not exist")
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with id: {id} does not exist")
 #     db.delete(user)
 #     db.commit()
 #     return Response(status_code=status.HTTP_204_NO_CONTENT)

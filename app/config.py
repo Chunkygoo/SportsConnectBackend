@@ -47,6 +47,7 @@ class Settings(BaseSettings):
     csrf_cookie_secure: bool
     
     origin_0: str
+    environment: str
 
     class Config:
         env_file = ".env"

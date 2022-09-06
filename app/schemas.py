@@ -129,6 +129,29 @@ class UserRes(UserBase):
 class UserMe(UserRes):
     role: Optional[str] = "user"
     
+
+class UserAdmin(UserBase):
+    id: Optional[int]
+    username: Optional[str] = ""
+    email: Optional[str] = ""
+    name: Optional[str] = ""
+    wechatId: Optional[str] = ""
+    gender: Optional[str] = ""
+    contact_number: Optional[str] = ""
+    current_address:Optional[str] = ""
+    birthday: Optional[date] = None
+    role: Optional[str] = "user"
+
+class UserAdminReq(UserBase):
+    email: Optional[str] = ""
+    name: Optional[str] = ""
+    wechatId: Optional[str] = ""
+    gender: Optional[str] = ""
+    contact_number: Optional[str] = ""
+    current_address:Optional[str] = ""
+    birthday: Optional[date] = None
+    role: Optional[str] = "user"
+
 class SignUpRes(UserBase):
     name: Optional[str] = ""
     email: Optional[str] = ""

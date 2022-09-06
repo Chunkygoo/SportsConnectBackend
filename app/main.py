@@ -2,13 +2,15 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from fastapi.responses import JSONResponse
-from .routers import user, auth, email, experience, education, universities
+from .routers import user, auth, email, experience, education, universities, admin_user
 from fastapi_csrf_protect.exceptions import CsrfProtectError
 from .config import settings
 from mangum import Mangum
 
-# app = FastAPI(openapi_url=None, redoc_url=None)
-app = FastAPI()
+if settings.environment == 'PROD':
+    app = FastAPI(openapi_url=None, redoc_url=None)
+else:
+    app = FastAPI()
 
 
 @app.exception_handler(AuthJWTException)
@@ -25,14 +27,15 @@ def csrf_protect_exception_handler(request: Request, exc: CsrfProtectError):
       content={"detail": exc.message}
   )
 
-origins = [settings.origin_0]
-
+# origins = [settings.origin_0]
+origins = ["*"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Content-Range"]
 )
 
 @app.get('/health')
@@ -45,5 +48,6 @@ app.include_router(email.router)
 app.include_router(experience.router)
 app.include_router(education.router)
 app.include_router(universities.router)
+app.include_router(admin_user.router)
 
 handler = Mangum(app)
