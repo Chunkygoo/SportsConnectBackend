@@ -58,6 +58,15 @@ class EducationReq(EducationBase):
     start_date: date
     end_date: Optional[date] = None
 
+class UniversityReq(UniversityBase):
+    name: str
+    city: str
+    state: str
+    conference: str
+    division: str
+    region: str
+    category: str
+
 class Token(BaseModel):
     access_token: str
     refresh_token: str

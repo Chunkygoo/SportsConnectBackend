@@ -2,7 +2,9 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from fastapi.responses import JSONResponse
-from .routers import user, auth, email, experience, education, universities, admin_user
+
+from .routers import user, auth, email, experience, education, universities
+from .admin.routers import user as admin_user, universities as admin_universities
 from fastapi_csrf_protect.exceptions import CsrfProtectError
 from .config import settings
 from mangum import Mangum
@@ -27,8 +29,8 @@ def csrf_protect_exception_handler(request: Request, exc: CsrfProtectError):
       content={"detail": exc.message}
   )
 
-# origins = [settings.origin_0]
-origins = ["*"]
+origins = [settings.origin_0]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -48,6 +50,9 @@ app.include_router(email.router)
 app.include_router(experience.router)
 app.include_router(education.router)
 app.include_router(universities.router)
+
+# admin routes
 app.include_router(admin_user.router)
+app.include_router(admin_universities.router)
 
 handler = Mangum(app)

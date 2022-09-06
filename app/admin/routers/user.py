@@ -1,13 +1,12 @@
 from fastapi import Request, Response, status, HTTPException, Depends, APIRouter
-from .. import models, schemas, utils
-from ..database import get_db
+from app import models, schemas, utils
+from app.database import get_db
 from sqlmodel import Session, select, or_
 from fastapi_jwt_auth import AuthJWT
-from app.config import settings
 from fastapi_csrf_protect import CsrfProtect
 from typing import List, Union
-from functools import wraps
 from fastapi.responses import JSONResponse
+from ..auth_check import auth_check
 
 @CsrfProtect.load_config
 def get_csrf_config():
@@ -18,25 +17,8 @@ router = APIRouter(
     tags=['(Admin) Users']
 )
 
-def auth_check(roles):
-    def decorator_auth(func):
-        @wraps(func)
-        def wrapper_auth(*args, **kwargs):
-            Authorize = kwargs['Authorize']
-            db = kwargs['db']
-            Authorize.jwt_required()
-            current_user = db.exec(select(models.User).where(models.User.id == Authorize.get_jwt_subject())).first()
-            user_role = current_user.role
-            if user_role in roles:
-                return func(*args, **kwargs)
-            return JSONResponse(
-                status_code=401,
-                content={"detail": "Unauthorized"})
-        return wrapper_auth
-    return decorator_auth
-
 # helper needed due to how the postgresql dataprovider works for react-admin
-def get_user_admin(user_id: int,  db: Session):
+def get_user(user_id: int,  db: Session):
     statement = select(models.User).where(models.User.id == user_id)
     results = db.exec(statement)
     user = results.first()
@@ -46,14 +28,14 @@ def get_user_admin(user_id: int,  db: Session):
 
 @router.get("", response_model= Union[List[schemas.UserAdmin], schemas.UserAdmin])
 @auth_check(roles = ["admin"])
-def get_users_admin(request: Request, response: Response, id: str = "-1", limit: int = 10, offset: int = 0, order:str="id.asc", q:str="", 
+def get_users(request: Request, response: Response, id: str = "-1", limit: int = 10, offset: int = 0, order:str="id.asc", q:str="", 
                     db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
     csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_required()
     # Get one user
     if id != "-1":
-        return get_user_admin(int(id.split(".")[1]), db)
+        return get_user(int(id.split(".")[1]), db)
     order_direction_map = {
         "id": [models.User.id, models.User.id.desc()],
         "username": [models.User.id, models.User.id.desc()],
@@ -112,7 +94,7 @@ def create_user(request: Request, user: schemas.UserCreate, db: Session = Depend
 
 @router.put("", response_model=schemas.UserAdmin)
 @auth_check(roles = ["admin"])
-def update_user_admin(request: Request, updated_user: schemas.UserAdminReq, id: str = "-1", db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
+def update_user(request: Request, updated_user: schemas.UserAdminReq, id: str = "-1", db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
     csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_required()
@@ -131,7 +113,7 @@ def update_user_admin(request: Request, updated_user: schemas.UserAdminReq, id: 
 
 @router.delete("", status_code=status.HTTP_204_NO_CONTENT)
 @auth_check(roles = ["admin"])
-def delete_user_admin(request: Request, id: str = "-1", db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
+def delete_user(request: Request, id: str = "-1", db: Session = Depends(get_db), Authorize: AuthJWT = Depends(), csrf_protect: CsrfProtect = Depends()):
     csrf_token = csrf_protect.get_csrf_from_headers(request.headers)
     csrf_protect.validate_csrf(csrf_token, request)
     Authorize.jwt_required()
